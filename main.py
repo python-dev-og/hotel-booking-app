@@ -23,6 +23,11 @@ class Hotel:
             return False
 
 
+class SpaHotel(Hotel):
+    def book_spa_package(self):
+        pass
+
+
 class ReservationTicket:
     def __init__(self, customer_name, hotel_object):
         self.customer_name = customer_name
@@ -53,17 +58,32 @@ class CreditCard:
 
 class SecureCreditCard(CreditCard):
     def authenticate(self, given_password):
-        password = df_cards_security.loc[df_cards_security["number"] == self.number, "password"].squeeze()
+        password = df_cards_security.loc[df_cards_security["number"] ==
+                                         self.number, "password"].squeeze()
         if password == given_password:
             return True
         else:
             return False
 
 
+class SpaTicket:
+    def __init__(self, customer_name, hotel_object):
+        self.customer_name = customer_name
+        self.hotel = hotel_object
+
+    def generate(self):
+        content = f"""
+        Thank you for your SPA reservation!
+        Here are your SPA booking data:
+        Name: {self.customer_name}
+        Hotel name: {self.hotel.name}
+        """
+        return content
+
 
 print(df)
 hotel_ID = input("Enter the id of the hotel: ")
-hotel = Hotel(hotel_ID)
+hotel = SpaHotel(hotel_ID)
 
 if hotel.available():
     credit_card = SecureCreditCard(number="1234567890123456")
@@ -71,8 +91,16 @@ if hotel.available():
         if credit_card.authenticate(given_password="mypass"):
             hotel.book()
             name = input("Enter your name: ")
-            reservation_ticket = ReservationTicket(customer_name=name, hotel_object=hotel)
+            reservation_ticket = ReservationTicket(customer_name=name,
+                                                   hotel_object=hotel)
             print(reservation_ticket.generate())
+            spa = input("Do you want to book a spa package? ")
+            if spa == "yes":
+                hotel.book_spa_package()
+                spa_ticket = SpaTicket(customer_name=name, hotel_object=hotel)
+                print(spa_ticket.generate())
+            else:
+                print("Thank you, be sure to tryout our SPA package on your next visit!")
         else:
             print("Credit card authentication failed")
     else:
